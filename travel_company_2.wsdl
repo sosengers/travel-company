@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="travelcompany.com.wsdl" xmlns:xsd1="travelcompany.com.xsd" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="travelcompany.com.wsdl" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <wsdl:types>
+    <xs:schema targetNamespace="travelcompany.com.xsd" xmlns:sch="travelcompany.com.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="buyTransfers"><xs:complexType><xs:sequence><xs:element maxOccurs="1" minOccurs="1" name="departure_transfer_datetime" type="xs:string"/><xs:element maxOccurs="1" minOccurs="1" name="customer_address" type="xs:string"/><xs:element maxOccurs="1" minOccurs="1" name="airport_code" type="xs:string"/><xs:element maxOccurs="1" minOccurs="1" name="customer_name" type="xs:string"/><xs:element maxOccurs="1" minOccurs="1" name="arrival_transfer_datetime" type="xs:string"/></xs:sequence></xs:complexType></xs:element><xs:element name="buyTransfersResponse"><xs:complexType><xs:sequence><xs:element maxOccurs="1" minOccurs="1" name="response" type="xs:string"/></xs:sequence></xs:complexType></xs:element><xs:element name="buyTransfersError"><xs:complexType><xs:sequence><xs:element maxOccurs="1" minOccurs="1" name="description" type="xs:string"/></xs:sequence></xs:complexType></xs:element></xs:schema>
+  </wsdl:types>
+  <wsdl:message name="buyTransfersResponse">
+    <wsdl:part name="body" element="xsd1:buyTransfersResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="buyTransfersRequest">
+    <wsdl:part name="body" element="xsd1:buyTransfers">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="buyTransfersError">
+    <wsdl:part name="body" element="xsd1:buyTransfersError">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="TravelCompany">
+    <wsdl:operation name="buyTransfers">
+      <wsdl:input message="tns:buyTransfersRequest">
+    </wsdl:input>
+      <wsdl:output message="tns:buyTransfersResponse">
+    </wsdl:output>
+      <wsdl:fault name="Fault400" message="tns:buyTransfersError">
+    </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="TravelCompanySOAPBinding" type="tns:TravelCompany">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="buyTransfers">
+      <soap:operation soapAction="buyTransfers" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Fault400">
+        <soap:fault name="Fault400" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="TravelCompanyService">
+    <wsdl:port name="TravelCompanyServicePort" binding="tns:TravelCompanySOAPBinding">
+      <soap:address location="http://travel_company_2:8080"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
