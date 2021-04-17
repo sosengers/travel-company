@@ -58,6 +58,18 @@ main {
 			throw(Fault400, {description = "airport_code not valid"})
 		}
 
-		response.response = "Tansport booked from " + request.customer_address + " to " + request.airport_code + " at: " + request.departure_transfer_datetime + " - " + request.arrival_transfer_datetime
+		dateTime = request.departure_transfer_datetime;
+		dateTime.format = "yyyy-MM-dd'T'HH:mm:ss";
+		getTimestampFromString@Time(dateTime)(departureTransferTimestamp)
+		departureTransferTimestamp.format = "dd/MM/yyyy HH:mm:ss"
+		getDateTime@Time(departureTransferTimestamp)(departureTime)
+
+		dateTime = request.arrival_transfer_datetime;
+		dateTime.format = "yyyy-MM-dd'T'HH:mm:ss";
+		getTimestampFromString@Time(dateTime)(arrivalTransferTimestamp)
+		arrivalTransferTimestamp.format = "dd/MM/yyyy HH:mm:ss"
+		getDateTime@Time(arrivalTransferTimestamp)(arrivalTime)
+
+		response.response = "Trasporto prenotato da " + request.customer_address + " all'aeroporto " + request.airport_code + ". La navetta passerà in andata il: " + departureTime + " e al ritorno il: " + arrivalTime + "."
 	}
 }
