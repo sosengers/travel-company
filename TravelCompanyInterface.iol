@@ -16,6 +16,10 @@ type buyTransfersError: void {
 
 interface TravelCompanyInterface {
 RequestResponse:
+	/**!
+	* Allows to buy a transfer from buyTransfersRequest.customer_address to buyTransfersRequest on date and time buyTransfersRequest.departure_transfer_datetime
+	* and a transfer in the opposite direction on date and time  buyTransfersRequest.arrival_transfer_datetime.
+	*/
 	buyTransfers( buyTransfersRequest )( buyTransfersResponse ) throws Fault400( buyTransfersError )
 }
 

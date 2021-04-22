@@ -5,7 +5,7 @@ include "string_utils.iol"
 
 execution{ concurrent }
 
-inputPort TravelCompany{
+inputPort TravelCompany {
 	Location:"socket://localhost:8080"
 	Protocol: soap {
 		.wsdl = "./travel_company.wsdl";
@@ -22,6 +22,10 @@ init {
 
 main {
 	buyTransfers( request )( response ) {
+		/*
+		* In the following scope the field request.departure_transfer_datetime is checked for correctness.
+		* A Fault400 error is thrown if the date is invalid.
+		*/
 		scope (dateFormatCheckingDepartureDateTime) {
 			install ( InvalidTimestamp => {
 				println@Console("Invalid date format in departure_transfer_datetime")();
@@ -29,11 +33,14 @@ main {
 			})
 
 			dateTime = request.departure_transfer_datetime;
-			dateTime.format = "yyyy-MM-dd'T'HH:mm:ss"; 
-			//dateTime.language =
+			dateTime.format = "yyyy-MM-dd'T'HH:mm:ss";
 			getTimestampFromString@Time(dateTime)(departureTransferTimestamp)
 		}
 		
+		/*
+		* In the following scope the field request.arrival_transfer_datetime is checked for correctness.
+		* A Fault400 error is thrown if the date is invalid.
+		*/
 		scope (dateFormatCheckingArrivalDateTime) {
 			install ( InvalidTimestamp => {
 				println@Console("Invalid date format in arrival_transfer_datetime")()
@@ -42,22 +49,29 @@ main {
 
 			dateTime = request.arrival_transfer_datetime;
 			dateTime.format = "yyyy-MM-dd'T'HH:mm:ss"; 
-			//dateTime.language =
 			getTimestampFromString@Time(dateTime)(arrivalTransferTimestamp)
 		}
 		
-		//Error habdling not necessary because dates are verified
+		/*
+		* Dates are correct but now we need to verify if they are consequent. If they are not, then a Fault400 is thrown.
+		*/
 		if (arrivalTransferTimestamp <= departureTransferTimestamp) {
-			throw (Fault400, {description = "departure_transfer_dateime greater than arrival_transfer_datetime"})
+			throw (Fault400, {description = "departure_transfer_datetime comes later than arrival_transfer_datetime"})
 		}
 
+		/*
+		* Checking if the airport code is valid. If it is not, then a Fault400 is thrown.
+		*/
 		matchRequest = request.airport_code
 		matchRequest.regex = "[A-Z]{3,3}"
 		match@StringUtils(matchRequest)(airportCodeOK)
 		if (airportCodeOK == 0) {
-			throw(Fault400, {description = "airport_code not valid"})
+			throw(Fault400, {description = "airport_code is not valid"})
 		}
 
+		/*
+		* Changing date format from ISO 8601 to Italian date format in both departure_transfer_datetime and arrival_transfer_datetime.
+		*/
 		dateTime = request.departure_transfer_datetime;
 		dateTime.format = "yyyy-MM-dd'T'HH:mm:ss";
 		getTimestampFromString@Time(dateTime)(departureTransferTimestamp)
@@ -70,6 +84,9 @@ main {
 		arrivalTransferTimestamp.format = "dd/MM/yyyy HH:mm:ss"
 		getDateTime@Time(arrivalTransferTimestamp)(arrivalTime)
 
+		/*
+		* Sending the message with information about the booked transfer.
+		*/
 		response.response = "Trasporto prenotato da " + request.customer_address + " all'aeroporto " + request.airport_code + ". La navetta passerà in andata il: " + departureTime + " e al ritorno il: " + arrivalTime + "."
 	}
 }
